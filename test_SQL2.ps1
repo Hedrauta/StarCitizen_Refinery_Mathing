@@ -1,4 +1,5 @@
-"1718648348"
+"1718648348" | Out-Null
+$sum_c = 46
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
 $sqld = Get-Content .\mysql-server.json | ConvertFrom-Json
 [string] $PasswordFile = ".\\password.txt"
@@ -59,8 +60,7 @@ function sql_sel($table, $column) {
 
     return $resultArray
 }
-function sql_sel_lim($table, $column, $limit) {
-    $col_string = $column -join (', ')
+function sql_com_sel_lim($summax) {
     $resultArray = @()
     try {
         $script:MyConnection.Open()
@@ -70,7 +70,7 @@ function sql_sel_lim($table, $column, $limit) {
             Write-Host "Verbindung konnte nicht geöffnet werden."
             return
         }
-        $command = New-Object MySql.Data.MySqlClient.MySqlCommand("SELECT $col_string FROM $($sqld.Database).$table ORDER BY DbID LIMIT $limit;", $script:MyConnection)
+        $command = New-Object MySql.Data.MySqlClient.MySqlCommand("SELECT * FROM combinations WHERE SCU<=$summax ORDER BY SCU DESC, DbID LIMIT 10;", $script:MyConnection)
         $result = $command.ExecuteReader()
         $counter = 1
         while ($result.Read()) {
@@ -413,8 +413,9 @@ While ($True) {
         Clear-Host
     }
     elseif ($option.ToLower() -eq "c") {
+        $sum_c = 46
         while ($option.ToLower() -eq "c") {
-            $com_table = sql_sel_lim "combinations" "*" 10
+            $com_table = sql_com_sel_lim $sum_c
             $ref_table = sql_sel "refinery" "*"
             $times = sql_sel "timestamps" "*"
             Clear-Host
@@ -556,11 +557,12 @@ While ($True) {
                         $com_table["Tara"] = [int]$com_t
                     }
                 }
-                $com_table | ConvertFrom-HashTable | Select-Object -Property DbID, Wert_Min, Wert_Max, '#Slots', Quan, Gold, Bexa, Tara | Format-Table
+                $com_table | ConvertFrom-HashTable | Select-Object -Property DbID, Wert_Min, Wert_Max, SCU, '#Slots', Quan, Gold, Bexa, Tara | Format-Table
                 "--------------------------------"
+                "S = Limit Ändern"
                 "Z = Zurück zum Hauptmenü"
-                $rs = Read-Host "Wähle die DbID der Kombination, die du verladen möchstest: [1-$($com_table.Length)]"
-                if ($rs.ToLower() -ne "z") {
+                $rs = Read-Host "Wähle die DbID der Kombination, die du verladen möchstest:"
+                if ($rs.ToLower() -ne "z" -and $rs.ToLower() -ne "s") {
                     if ([int]$rs -is [int] -and [int]$rs -le $com_table.Length -and [int]$rs -gt 0) {
                         $loop = $true
                         while ($loop) {
@@ -672,11 +674,23 @@ While ($True) {
                     $option = ""
                     Clear-Host
                 }
+                elseif ($rs.ToLower() -eq "s") {
+                    while ($rs.ToLower() -eq "s") {
+                        $rs3 = Read-Host "Gebe den neuen Schwellenwert für die Kombinationen an [1-∞]"
+                        if ([int]$rs3 -is [int]) {
+                            $sum_c = [int]$rs3
+                            $rs = ""
+                        }
+                        else {
+                            Write-Warning "Nur Zahlen eingeben, bitte!"w
+                        }
+                    }
+                }
 
             }
             elseif ($times.last_combo -ge $times.last_entry) {
                 Write-Warning "Es sind keine Kombinationen möglich, die den Wert 46 erzeugen"
-                $option = ""
+                $sum_c = 46
                 Pause
                 Clear-Host
             }
