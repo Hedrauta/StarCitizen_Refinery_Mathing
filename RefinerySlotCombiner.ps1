@@ -20,6 +20,27 @@ $MyConnection.Open()
 $MyConnection.Close()
 
 # Funktionen definieren
+function script_update() {
+    $req = Invoke-WebRequest -Uri https://raw.githubusercontent.com/Hedrauta/StarCitizen_Refinery_Mathing/main/RefinerySlotCombiner.ps1
+    $latest_version = [int]$($($req.Content)[1..10] -join "")
+    $current_version = [int]$($(Get-Content $PSCommandPath)[0][1..10] -join "")
+    if ($latest_version -gt $current_version) {
+        $loop = $true
+        while ($loop) {
+            "Ein Update ist verfügbar."
+            $rs = Read-Host "Möchtest du es installieren? [J/N]:"
+            if ($rs.ToLower() -eq "n") {
+                $loop = $false
+            }
+            elseif ($rs.ToLower() -eq "j") {
+                Set-Content $PSCommandPath -Value $req.Content
+                "Script geupdated, bitte erneut starten!"
+                Pause
+                exit
+            }
+        }
+    }
+}
 function sql_sel($table, $column) {
     $col_string = $column -join (', ')
     $resultArray = @()
@@ -235,6 +256,8 @@ function update_prices() {
     }
     
 }
+#Script-Update-Check
+
 
 Clear-Host
 # Loop starten
@@ -250,6 +273,7 @@ While ($True) {
     "Touren"
     "C = Kombinationen"
     ""; ""
+    
     $option = Read-Host "Option wählen:"
     Clear-Host
     if ($option.ToLower() -eq "e") {
