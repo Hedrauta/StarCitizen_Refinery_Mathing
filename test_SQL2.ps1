@@ -1,3 +1,4 @@
+"1"
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
 $sqld = Get-Content .\mysql-server.json | ConvertFrom-Json
 [string] $PasswordFile = ".\\password.txt"
