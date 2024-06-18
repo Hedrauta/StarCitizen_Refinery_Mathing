@@ -469,8 +469,8 @@ While ($True) {
                     $com_b = 0
                     $com_t = 0
                     #Wert für DbI1 errechnen
-                    if ($com_table.Length -gt 1){$math_q = $math_table | Where-Object { $_.DbID -eq $com_table[$i].DbI1 }}
-                        else {$math_q = $math_table | Where-Object { $_.DbID -eq $com_table.DbI1 }}
+                    if ($com_table.Length -gt 1) { $math_q = $math_table | Where-Object { $_.DbID -eq $com_table[$i].DbI1 } }
+                    else { $math_q = $math_table | Where-Object { $_.DbID -eq $com_table.DbI1 } }
                     $com_w_min += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Minimum) + ($math_q.Gold * $price_gold.Minimum) + ($math_q.Bexalite * $price_bexa.Minimum) + ($math_q.Taranite * $price_tara.Minimum))
                     $com_w_max += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Maximum) + ($math_q.Gold * $price_gold.Maximum) + ($math_q.Bexalite * $price_bexa.Maximum) + ($math_q.Taranite * $price_tara.Maximum))
                     $com_q += [int]($math_q.Quantanium)
@@ -478,8 +478,8 @@ While ($True) {
                     $com_b += [int]($math_q.Bexalite)
                     $com_t += [int]($math_q.Taranite)
                     #Wert für DbI2 errechnen
-                    if ($com_table.Length -gt 1){$math_q = $math_table | Where-Object { $_.DbID -eq $com_table[$i].DbI2 }}
-                        else {$math_q = $math_table | Where-Object { $_.DbID -eq $com_table.DbI2 }}
+                    if ($com_table.Length -gt 1) { $math_q = $math_table | Where-Object { $_.DbID -eq $com_table[$i].DbI2 } }
+                    else { $math_q = $math_table | Where-Object { $_.DbID -eq $com_table.DbI2 } }
                     $com_w_min += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Minimum) + ($math_q.Gold * $price_gold.Minimum) + ($math_q.Bexalite * $price_bexa.Minimum) + ($math_q.Taranite * $price_tara.Minimum))
                     $com_w_max += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Maximum) + ($math_q.Gold * $price_gold.Maximum) + ($math_q.Bexalite * $price_bexa.Maximum) + ($math_q.Taranite * $price_tara.Maximum))
                     $com_num = 2
@@ -488,7 +488,7 @@ While ($True) {
                     $com_b += [int]($math_q.Bexalite)
                     $com_t += [int]($math_q.Taranite)
                     #Wert für DbI3 errechnen, wenn vorhanden
-                    if ($com_table.Length -gt 1){
+                    if ($com_table.Length -gt 1) {
                         if (-not ("" -eq $com_table[$i].DbI3)) {
                             $math_q = $math_table | Where-Object { $_.DbID -eq $com_table[$i].DbI3 }
                             $com_w_min += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Minimum) + ($math_q.Gold * $price_gold.Minimum) + ($math_q.Bexalite * $price_bexa.Minimum) + ($math_q.Taranite * $price_tara.Minimum))
@@ -500,7 +500,7 @@ While ($True) {
                             $com_t += [int]($math_q.Taranite)
                         }
                     }
-                    else{
+                    else {
                         if (-not ("" -eq $com_table.DbI3)) {
                             $math_q = $math_table | Where-Object { $_.DbID -eq $com_table.DbI3 }
                             $com_w_min += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Minimum) + ($math_q.Gold * $price_gold.Minimum) + ($math_q.Bexalite * $price_bexa.Minimum) + ($math_q.Taranite * $price_tara.Minimum))
@@ -513,7 +513,7 @@ While ($True) {
                         }
                     }
                     #Wert für DbI4 errechnen, wenn vorhanden
-                    if ($com_table.Length -gt 1){
+                    if ($com_table.Length -gt 1) {
                         if (-not ("" -eq $com_table[$i].DbI4)) {
                             $math_q = $math_table | Where-Object { $_.DbID -eq $com_table[$i].DbI4 }
                             $com_w_min += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Minimum) + ($math_q.Gold * $price_gold.Minimum) + ($math_q.Bexalite * $price_bexa.Minimum) + ($math_q.Taranite * $price_tara.Minimum))
@@ -538,7 +538,7 @@ While ($True) {
                         }
                     }
                     #Wert für DbI5 errechnen, wenn vorhanden
-                    if ($com_table.Length -gt 1){
+                    if ($com_table.Length -gt 1) {
                         if (-not ("" -eq $com_table[$i].DbI5)) {
                             $math_q = $math_table | Where-Object { $_.DbID -eq $com_table[$i].DbI5 }
                             $com_w_min += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Minimum) + ($math_q.Gold * $price_gold.Minimum) + ($math_q.Bexalite * $price_bexa.Minimum) + ($math_q.Taranite * $price_tara.Minimum))
@@ -562,7 +562,7 @@ While ($True) {
                             $com_t += [int]($math_q.Taranite)
                         }
                     }
-                    if ($com_table.Length -gt 1){
+                    if ($com_table.Length -gt 1) {
                         $com_table[$i]["Wert_Min"] = [int]$com_w_min
                         $com_table[$i]["Wert_Max"] = [int]$com_w_max
                         $com_table[$i]["#Slots"] = [int]$com_num
@@ -592,7 +592,7 @@ While ($True) {
                         while ($loop) {
                             Clear-Host
                             "Gewählte Tour:"
-                            if ($com_table.Length -gt 1){
+                            if ($com_table.Length -gt 1) {
                                 $com_sel = $com_table[$rs - 1]
                             }
                             else {
@@ -650,10 +650,10 @@ While ($True) {
                                     $rfs[4] = $rfs5
                                 }
                                 $rfs.Values | 
-                                    ConvertFrom-HashTable | 
-                                    Sort-Object DbID | 
-                                    Select-Object 'Raf.-Slot', Quantanium, Gold, Bexalite, Taranite | 
-                                    Format-Table
+                                ConvertFrom-HashTable | 
+                                Sort-Object DbID | 
+                                Select-Object 'Raf.-Slot', Quantanium, Gold, Bexalite, Taranite | 
+                                Format-Table
 
                                 Start-Sleep -Milliseconds 200
                                 ""
