@@ -32,8 +32,8 @@ RefinerySlotCombiner ist ein zweiteiliges Script für erfahrene Benutzer, das Ke
    - Passen Sie die Zugangsdaten in der Python-Seite an und starten Sie das Python-Script.
    - Die Zugangsdaten der PowerShell-Seite befinden sich in einer separaten Datei (MySQL-server.json) . Das Passwort für den Zugang wird separat abgefragt und verschlüsselt gespeichert.
 
-4. **Hinweis zur ExecutionPolicy:**
-   - Möglicherweise muss die ExecutionPolicy angepasst werden, da der Zugriff auf die benötigte DLL für den MySQL-Connector dadurch gestört werden kann.
+4. **Hinweis zu Powershell:**
+   - Möglicherweise muss die ExecutionPolicy in Powershell angepasst werden, da der Zugriff auf die benötigte DLL für den MySQL-Connector dadurch gestört werden kann.
 
 ## Nutzung
 
