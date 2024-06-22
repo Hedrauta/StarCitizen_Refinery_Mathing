@@ -1,4 +1,4 @@
-"1719042046" | Out-Null
+"1719049745" | Out-Null
 $sum_c = 46
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
 $sqld = Get-Content .\mysql-server.json | ConvertFrom-Json
@@ -603,8 +603,9 @@ While ($True) {
                                     $rfs5 = $($ref_table | Where-Object { $_.DbID -eq $com_sel.DbI5 })
                                 }
                                 "--------------------------------"
-                                "Raffinerie-Slots sind wie folgt (von links nach rechts wählend in der Raffinerie)"
-                                "$($rfs1.'Raf.-Slot') + $($rfs2.'Raf.-Slot' - 1)" + $(if ($com_sel.'#Slots' -ge 3) { " + $($rfs3.'Raf.-Slot' - 2)" }) + $(if ($com_sel.'#Slots' -ge 4) { " + $($rfs4.'Raf.-Slot' - 3)" }) + $(if ($com_sel.'#Slots'.'Raf.-Slot' -ge 5) { " + $($rfs5 - 4)" })
+                                "Raffinerie-Slots sind wie folgt" 
+                                "(von links nach rechts wählend in der Raffinerie)"
+                                "$($rfs1.'Raf.-Slot') + $($rfs2.'Raf.-Slot' - 1)" + $(if ($com_sel.'#Slots' -ge 3) { " + $($rfs3.'Raf.-Slot' - 2)" }) + $(if ($com_sel.'#Slots' -ge 4) { " + $($rfs4.'Raf.-Slot' - 3)" }) + $(if ($com_sel.'#Slots' -ge 5) { " + $($rfs5.'Raf.-Slot' - 4)" })
                                 $rfs = @{}
                                 $rfs[0] = $rfs1
                                 $rfs2.'Raf.-Slot' = $rfs2.'Raf.-Slot' - 1
@@ -629,25 +630,29 @@ While ($True) {
 
                                 Start-Sleep -Milliseconds 200
                                 ""
-                                Read-Host "Bitte die Verladung mit ENTER bestätigen, es werden danach die RaffinerieSlots aus der Datenbank entfernt" | Out-Null
-                                sql_del "refinery" $com_sel.DbI1
-                                sql_del "refinery" $com_sel.DbI2
-                                if (-not ("" -eq $com_sel.DbI3)) {
-                                    sql_del "refinery" $com_sel.DbI3
+                                "Bitte die Verladung mit der Eingabetaste bestätigen, "
+                                "es werden danach die RaffinerieSlots aus der Datenbank entfernt!"
+                                $rsv = Read-Host "Mit 'z' den vorgang abbrechen"
+                                if (-not $($rsv.ToLower() -eq 'z')) {
+                                    sql_del "refinery" $com_sel.DbI1
+                                    sql_del "refinery" $com_sel.DbI2
+                                    if (-not ("" -eq $com_sel.DbI3)) {
+                                        sql_del "refinery" $com_sel.DbI3
+                                    }
+                                    if (-not ("" -eq $com_sel.DbI4)) {
+                                        sql_del "refinery" $com_sel.DbI4
+                                    }
+                                    if (-not ("" -eq $com_sel.DbI5)) {
+                                        sql_del "refinery" $com_sel.DbI5
+                                    }
+                                    sql_tru "combinations"
+                                    sql_upd_t
+                                    $rs2 = ""
+                                    $rs = ""
+                                    $loop = $false
+                                    $option = ""
+                                    Pause
                                 }
-                                if (-not ("" -eq $com_sel.DbI4)) {
-                                    sql_del "refinery" $com_sel.DbI4
-                                }
-                                if (-not ("" -eq $com_sel.DbI5)) {
-                                    sql_del "refinery" $com_sel.DbI5
-                                }
-                                sql_tru "combinations"
-                                sql_upd_t
-                                $rs2 = ""
-                                $rs = ""
-                                $loop = $false
-                                $option = ""
-                                Pause
                                 Clear-Host
                             } elseif ($rs2.ToLower() -eq "a") {
                                 $rs2 = ""
@@ -673,14 +678,14 @@ While ($True) {
                             $sum_c = [int]$rs3
                             $rs = ""
                         } else {
-                            Write-Warning "Nur Zahlen eingeben, bitte!"w
+                            "Nur Zahlen eingeben, bitte!"
                         }
                     }
                 }
 
             } elseif ($times.last_combo -ge $times.last_entry) {
                 Write-Warning "Es sind keine Kombinationen möglich, die den Wert $sum_c oder niedriger erzeugen"
-                Write-Warning "Es wird auf 46 zurückgesetzt"
+                "Wert wird auf 46 zurückgesetzt"
                 $sum_c = 46
                 Pause
                 Clear-Host
