@@ -1,4 +1,4 @@
-"1718900478" | Out-Null
+"1719042046" | Out-Null
 $sum_c = 46
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
 $sqld = Get-Content .\mysql-server.json | ConvertFrom-Json
@@ -8,8 +8,7 @@ $MyConnection = New-Object MySql.Data.MySqlClient.MySqlConnection
 if (!(Test-Path -Path $PasswordFile)) {
     $securePassword = Read-Host "Bitte gebe das Passwort der SQL-Verbindung ein:" -AsSecureString
     $securePassword | ConvertFrom-SecureString | Out-File $PasswordFile
-}
-else {
+} else {
     $securePassword = Get-Content $PasswordFile | ConvertTo-SecureString
 }
 $credentials = New-Object System.Management.Automation.PSCredential ($($sqld.User), $securePassword)
@@ -31,8 +30,7 @@ function script_update() {
             $rs = Read-Host "Möchtest du es installieren? [J/N]:"
             if ($rs.ToLower() -eq "n") {
                 $loop = $false
-            }
-            elseif ($rs.ToLower() -eq "j") {
+            } elseif ($rs.ToLower() -eq "j") {
                 Set-Content $PSCommandPath -Value $req.Content
                 "Script geupdated, bitte erneut starten!"
                 Pause
@@ -48,8 +46,7 @@ function sql_sel($table, $column) {
     try {
         $script:MyConnection.Open()
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
-        }
-        else {
+        } else {
             Write-Host "Verbindung konnte nicht geöffnet werden."
             return
         }
@@ -69,11 +66,9 @@ function sql_sel($table, $column) {
             $resultArray += $row
         }
         $result.Close()
-    }
-    catch {
+    } catch {
         Write-Error "Es ist ein Fehler aufgetreten: $_"
-    }
-    finally {
+    } finally {
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
             $MyConnection.Close()
         }
@@ -86,9 +81,9 @@ function sql_com_sel_lim($summax) {
     try {
         $script:MyConnection.Open()
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
-        }
-        else {
+        } else {
             Write-Host "Verbindung konnte nicht geöffnet werden."
+            Pause
             return
         }
         $command = New-Object MySql.Data.MySqlClient.MySqlCommand("SELECT * FROM combinations WHERE SCU<=$summax ORDER BY SCU DESC, DbID LIMIT 10;", $script:MyConnection)
@@ -106,11 +101,9 @@ function sql_com_sel_lim($summax) {
             $resultArray += $row
         }
         $result.Close()
-    }
-    catch {
+    } catch {
         Write-Error "Es ist ein Fehler aufgetreten: $_"
-    }
-    finally {
+    } finally {
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
             $MyConnection.Close()
         }
@@ -125,9 +118,9 @@ function sql_ins($table, $column, $values) {
     try {
         $script:MyConnection.Open()
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
-        }
-        else {
+        } else {
             Write-Host "Verbindung konnte nicht geöffnet werden."
+            Pause
             return
         }
 
@@ -135,11 +128,9 @@ function sql_ins($table, $column, $values) {
         $result = $command.ExecuteReader()
         $result.Close()
 
-    }
-    catch {
+    } catch {
         Write-Error "Es ist ein Fehler aufgetreten: $_"
-    }
-    finally {
+    } finally {
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
             $MyConnection.Close()
             Write-Host "Werte eingetragen"
@@ -150,9 +141,9 @@ function sql_tru($table) {
     try {
         $script:MyConnection.Open()
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
-        }
-        else {
+        } else {
             Write-Host "Verbindung konnte nicht geöffnet werden."
+            Pause
             return
         }
 
@@ -160,11 +151,9 @@ function sql_tru($table) {
         $result = $command.ExecuteReader()
         $result.Close()
 
-    }
-    catch {
+    } catch {
         Write-Error "Es ist ein Fehler aufgetreten: $_"
-    }
-    finally {
+    } finally {
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
             $MyConnection.Close()
             Write-Host "Tabelle $table geleert"
@@ -175,9 +164,9 @@ function sql_del($table, $id) {
     try {
         $script:MyConnection.Open()
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
-        }
-        else {
+        } else {
             Write-Host "Verbindung konnte nicht geöffnet werden."
+            Pause
             return
         }
 
@@ -185,11 +174,9 @@ function sql_del($table, $id) {
         $result = $command.ExecuteReader()
         $result.Close()
 
-    }
-    catch {
+    } catch {
         Write-Error "Es ist ein Fehler aufgetreten: $_"
-    }
-    finally {
+    } finally {
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
             $MyConnection.Close()
             Write-Host "Eintrag $id aus $table entfert"
@@ -200,20 +187,18 @@ function sql_upd_t() {
     try {
         $script:MyConnection.Open()
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
-        }
-        else {
+        } else {
             Write-Host "Verbindung konnte nicht geöffnet werden."
+            Pause
             return
         }
         $time = Get-Date -UFormat %s
         $command = New-Object MySql.Data.MySqlClient.MySqlCommand("UPDATE $($sqld.Database).timestamps SET last_entry = $time", $script:MyConnection)
         $command.ExecuteNonQuery() | Out-Null
 
-    }
-    catch {
+    } catch {
         Write-Error "Es ist ein Fehler aufgetreten: $_"
-    }
-    finally {
+    } finally {
         if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
             $MyConnection.Close()
             Write-Host "Zeitstempel geupdated"
@@ -231,8 +216,7 @@ function ConvertFrom-HashTable {
             if ($entry.Value -is [System.Collections.IDictionary]) {
                 # Nested dictionary? Recurse.
                 $oht[[object] $entry.Key] = ConvertFrom-HashTable -HashTable $entry.Value # NOTE: Casting to [object] prevents problems with *numeric* hashtable keys.
-            }
-            else {
+            } else {
                 # Copy value as-is.
                 $oht[[object] $entry.Key] = $entry.Value
             }
@@ -313,26 +297,22 @@ While ($True) {
                     [int]$rs_value = Read-Host "Wert in cSCU angeben (ohne Buchstaben):"
                     $data.Quantanium = $rs_value
                     $data_value[0] = $rs_value
-                }
-                elseif ($rs.ToLower() -eq 'g') {
+                } elseif ($rs.ToLower() -eq 'g') {
                     "Gold ausgewählt."
                     [int]$rs_value = Read-Host "Wert in cSCU angeben (ohne Buchstaben):"
                     $data.Gold = $rs_value
                     $data_value[1] = $rs_value
-                }
-                elseif ($rs.ToLower() -eq 'b') {
+                } elseif ($rs.ToLower() -eq 'b') {
                     "Bexalite ausgewählt."
                     [int]$rs_value = Read-Host "Wert in cSCU angeben (ohne Buchstaben):"
                     $data.Bexalite = $rs_value
                     $data_value[2] = $rs_value
-                }
-                elseif ($rs.ToLower() -eq 't') {
+                } elseif ($rs.ToLower() -eq 't') {
                     "Taranite ausgewählt."
                     [int]$rs_value = Read-Host "Wert in cSCU angeben (ohne Buchstaben):"
                     $data.Taranite = $rs_value
                     $data_value[3] = $rs_value
-                }
-                elseif ($rs.ToLower() -eq 'e') {
+                } elseif ($rs.ToLower() -eq 'e') {
                     "Werte eintragen..."; ""
                     sql_ins "refinery" $data_order $data_value
                     ""
@@ -343,20 +323,17 @@ While ($True) {
                             $data_value = @(0, 0, 0, 0)
                             $data.Quantanium = $data.Bexalite = $data.Gold = $data.Taranite = 0
                             $q = $false
-                        }
-                        elseif ($res.ToLower() -eq "n") {
+                        } elseif ($res.ToLower() -eq "n") {
                             sql_upd_t
                             $reset = $false
                             $option = ""
                             $q = $fals
                         }
                     }
-                }
-                elseif ($rs.ToLower() -eq "l") {
+                } elseif ($rs.ToLower() -eq "l") {
                     $data_value = @(0, 0, 0, 0)
                     $data.Quantanium = $data.Bexalite = $data.Gold = $data.Taranite = 0
-                }
-                elseif ($rs.ToLower() -eq "z") {
+                } elseif ($rs.ToLower() -eq "z") {
                     sql_upd_t
                     $reset = $false
                     $option = ""
@@ -365,8 +342,7 @@ While ($True) {
             
         }
         Clear-Host
-    }
-    elseif ($option.ToLower() -eq "l") {
+    } elseif ($option.ToLower() -eq "l") {
         while ($option.ToLower() -eq "l") {
             $reset = $true
             Clear-Host
@@ -382,22 +358,19 @@ While ($True) {
                     $res = Read-Host "Möchtest du noch einen Eintrag entfernen? [J/N]"
                     if ($res.ToLower() -eq "j") {
                         $reset = $false
-                    }
-                    elseif ($res.ToLower() -eq "n") {
+                    } elseif ($res.ToLower() -eq "n") {
                         sql_upd_t
                         $option = ""
                         $reset = $false
                     }
                 }
-            }
-            elseif ($rs.ToLower() -eq "z") {
+            } elseif ($rs.ToLower() -eq "z") {
                 sql_upd_t
                 $option = ""
             }
         }
         Clear-Host
-    }
-    elseif ($option.ToLower() -eq "a") {
+    } elseif ($option.ToLower() -eq "a") {
         $ref_table = sql_sel "refinery" "*"
         $math_table = sql_sel "Maths" "*"
         update_prices
@@ -413,15 +386,20 @@ While ($True) {
         $price_tara = $prices_tara | Measure-Object -Property price_sell -AllStats
         if ($ref_table.Length -gt 1) {
             for ($i = 0; $i -lt $ref_table.Length; $i++) {
-                $ref_table[$i]['Wert_min'] = [Int][Math]::Floor(($math_table[$i].Quantanium * $price_quan.Minimum) + ($math_table[$i].Gold * $price_gold.Minimum) + ($math_table[$i].Bexalite * $price_bexa.Minimum) + ($math_table[$i].Taranite * $price_tara.Minimum))
-                $sum_min += $ref_table[$i].Wert_Min
-                $ref_table[$i]['Wert_max'] = [Int][Math]::Floor(($math_table[$i].Quantanium * $price_quan.Maximum) + ($math_table[$i].Gold * $price_gold.Maximum) + ($math_table[$i].Bexalite * $price_bexa.Maximum) + ($math_table[$i].Taranite * $price_tara.Maximum))
-                $sum_max += $ref_table[$i].Wert_Max
+                $ref_table[$i]['wmi'] = [Int][Math]::Floor(($math_table[$i].Quantanium * $price_quan.Minimum) + ($math_table[$i].Gold * $price_gold.Minimum) + ($math_table[$i].Bexalite * $price_bexa.Minimum) + ($math_table[$i].Taranite * $price_tara.Minimum))
+                $ref_table[$i]['Wert_min'] = "{0:N0}" -f $ref_table[$i].wmi
+                $sum_min += $ref_table[$i].wmi
+                $ref_table[$i]['wma'] = [Int][Math]::Floor(($math_table[$i].Quantanium * $price_quan.Maximum) + ($math_table[$i].Gold * $price_gold.Maximum) + ($math_table[$i].Bexalite * $price_bexa.Maximum) + ($math_table[$i].Taranite * $price_tara.Maximum))
+                $ref_table[$i]['Wert_max'] = "{0:N0}" -f $ref_table[$i].wma
+                $sum_max += $ref_table[$i].wma
             }
-        }
-        elseif ($ref_table.Length -eq 1) {
-            $ref_table['Wert_min'] = [Int][Math]::Floor(($math_table.Quantanium * $price_quan.Minimum) + ($math_table.Gold * $price_gold.Minimum) + ($math_table.Bexalite * $price_bexa.Minimum) + ($math_table.Taranite * $price_tara.Minimum))
-            $ref_table['Wert_max'] = [Int][Math]::Floor(($math_table.Quantanium * $price_quan.Maximum) + ($math_table.Gold * $price_gold.Maximum) + ($math_table.Bexalite * $price_bexa.Maximum) + ($math_table.Taranite * $price_tara.Maximum))
+        } elseif ($ref_table.Length -eq 1) {
+            $ref_table['wmi'] = [Int][Math]::Floor(($math_table.Quantanium * $price_quan.Minimum) + ($math_table.Gold * $price_gold.Minimum) + ($math_table.Bexalite * $price_bexa.Minimum) + ($math_table.Taranite * $price_tara.Minimum))
+            $ref_table['Wert_min'] = "{0:N0}" -f $ref_table.wmi
+            $sum_min += $ref_table.wmi
+            $ref_table['wma'] = [Int][Math]::Floor(($math_table.Quantanium * $price_quan.Maximum) + ($math_table.Gold * $price_gold.Maximum) + ($math_table.Bexalite * $price_bexa.Maximum) + ($math_table.Taranite * $price_tara.Maximum))
+            $ref_table['Wert_max'] = "{0:N0}" -f $ref_table.wma
+            $sum_min += $ref_table.wma
         }
 
         $ref_view = $ref_table | ConvertFrom-HashTable | Select-Object -Property Raf.-Slot, Quantanium, Gold, Bexalite, Taranite, Wert_min, Wert_max | Format-Table
@@ -429,14 +407,13 @@ While ($True) {
         Start-Sleep -Milliseconds 400
         "-------------------------"
         "Summenwert aller Raffinerie-Slots:"
-        "Min: $sum_min aUEC"
-        "Max: $sum_max aUEC"
+        "Min: $("{0:N0}" -f $sum_min) aUEC"
+        "Max: $("{0:N0}" -f $sum_max) aUEC"
         ""
 
         Pause
         Clear-Host
-    }
-    elseif ($option.ToLower() -eq "c") {
+    } elseif ($option.ToLower() -eq "c") {
         $sum_c = 46
         while ($option.ToLower() -eq "c") {
             $com_table = sql_com_sel_lim $sum_c
@@ -499,8 +476,7 @@ While ($True) {
                             $com_b += [int]($math_q.Bexalite)
                             $com_t += [int]($math_q.Taranite)
                         }
-                    }
-                    else {
+                    } else {
                         if (-not ("" -eq $com_table.DbI3)) {
                             $math_q = $math_table | Where-Object { $_.DbID -eq $com_table.DbI3 }
                             $com_w_min += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Minimum) + ($math_q.Gold * $price_gold.Minimum) + ($math_q.Bexalite * $price_bexa.Minimum) + ($math_q.Taranite * $price_tara.Minimum))
@@ -524,8 +500,7 @@ While ($True) {
                             $com_b += [int]($math_q.Bexalite)
                             $com_t += [int]($math_q.Taranite)
                         }
-                    }
-                    else {
+                    } else {
                         if (-not ("" -eq $com_table.DbI4)) {
                             $math_q = $math_table | Where-Object { $_.DbID -eq $com_table.DbI4 }
                             $com_w_min += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Minimum) + ($math_q.Gold * $price_gold.Minimum) + ($math_q.Bexalite * $price_bexa.Minimum) + ($math_q.Taranite * $price_tara.Minimum))
@@ -549,8 +524,7 @@ While ($True) {
                             $com_b += [int]($math_q.Bexalite)
                             $com_t += [int]($math_q.Taranite)
                         }
-                    }
-                    else {
+                    } else {
                         if (-not ("" -eq $com_table.DbI5)) {
                             $math_q = $math_table | Where-Object { $_.DbID -eq $com_table.DbI5 }
                             $com_w_min += [Int][Math]::Floor(($math_q.Quantanium * $price_quan.Minimum) + ($math_q.Gold * $price_gold.Minimum) + ($math_q.Bexalite * $price_bexa.Minimum) + ($math_q.Taranite * $price_tara.Minimum))
@@ -563,17 +537,16 @@ While ($True) {
                         }
                     }
                     if ($com_table.Length -gt 1) {
-                        $com_table[$i]["Wert_Min"] = [int]$com_w_min
-                        $com_table[$i]["Wert_Max"] = [int]$com_w_max
+                        $com_table[$i]["Wert_Min"] = "{0:N0}" -f [int]$com_w_min
+                        $com_table[$i]["Wert_Max"] = "{0:N0}" -f [int]$com_w_max
                         $com_table[$i]["#Slots"] = [int]$com_num
                         $com_table[$i]["Quan"] = [int]$com_q
                         $com_table[$i]["Gold"] = [int]$com_g
                         $com_table[$i]["Bexa"] = [int]$com_b
                         $com_table[$i]["Tara"] = [int]$com_t
-                    }
-                    else {
-                        $com_table["Wert_Min"] = [int]$com_w_min
-                        $com_table["Wert_Max"] = [int]$com_w_max
+                    } else {
+                        $com_table["Wert_Min"] = "{0:N0}" -f [int]$com_w_min
+                        $com_table["Wert_Max"] = "{0:N0}" -f [int]$com_w_max
                         $com_table["#Slots"] = [int]$com_num
                         $com_table["Quan"] = [int]$com_q
                         $com_table["Gold"] = [int]$com_g
@@ -593,9 +566,8 @@ While ($True) {
                             #Clear-Host
                             "Gewählte Tour:"
                             if ($com_table.Length -gt 1) {
-                                $com_sel = $com_table | Where-Object {$_.DbID -eq [int]$rs}
-                            }
-                            else {
+                                $com_sel = $com_table | Where-Object { $_.DbID -eq [int]$rs }
+                            } else {
                                 $com_sel = $com_table
                             }
                             $com_sel | ConvertFrom-HashTable | Select-Object -Property Wert_Min, Wert_Max, Quan, Gold, Bexa, Tara | Format-Table
@@ -606,10 +578,10 @@ While ($True) {
                             Start-Sleep -Milliseconds 200
                             "--------------------------------"
                             "Verkaufsorte: (zum aktuellen Stand der Daten durch Nutzer)"
-                            "[MIC]New Babage: $($babb_sell) aUEC"
-                            "[CRU]Orison: $($oris_sell) aUEC"
-                            "[ARC]Area 18: $($area_sell) aUEC"
-                            "[HUR]Lorville: $($lorv_sell) aUEC"
+                            "[MIC]New Babage: $("{0:N0}" -f $babb_sell) aUEC"
+                            "[CRU]Orison: $("{0:N0}" -f $oris_sell) aUEC"
+                            "[ARC]Area 18: $("{0:N0}" -f $area_sell) aUEC"
+                            "[HUR]Lorville: $("{0:N0}" -f $lorv_sell) aUEC"
                             Start-Sleep -Milliseconds 200
                             "--------------------------------"
                             "Optionen:"
@@ -677,14 +649,12 @@ While ($True) {
                                 $option = ""
                                 Pause
                                 Clear-Host
-                            }
-                            elseif ($rs2.ToLower() -eq "a") {
+                            } elseif ($rs2.ToLower() -eq "a") {
                                 $rs2 = ""
                                 $rs = ""
                                 $loop = $false
                                 Clear-Host
-                            }
-                            elseif ($rs2.ToLower() -eq "z") {
+                            } elseif ($rs2.ToLower() -eq "z") {
                                 $rs2 = ""
                                 $rs = ""
                                 $loop = $false
@@ -693,32 +663,28 @@ While ($True) {
                             }
                         }
                     }
-                }
-                elseif ($rs.ToLower() -eq "z") {
+                } elseif ($rs.ToLower() -eq "z") {
                     $option = ""
                     #Clear-Host
-                }
-                elseif ($rs.ToLower() -eq "s") {
+                } elseif ($rs.ToLower() -eq "s") {
                     while ($rs.ToLower() -eq "s") {
                         $rs3 = Read-Host "Gebe den neuen Schwellenwert für die Kombinationen an [1-∞]"
                         if ([int]$rs3 -is [int]) {
                             $sum_c = [int]$rs3
                             $rs = ""
-                        }
-                        else {
+                        } else {
                             Write-Warning "Nur Zahlen eingeben, bitte!"w
                         }
                     }
                 }
 
-            }
-            elseif ($times.last_combo -ge $times.last_entry) {
-                Write-Warning "Es sind keine Kombinationen möglich, die den Wert 46 erzeugen"
+            } elseif ($times.last_combo -ge $times.last_entry) {
+                Write-Warning "Es sind keine Kombinationen möglich, die den Wert $sum_c oder niedriger erzeugen"
+                Write-Warning "Es wird auf 46 zurückgesetzt"
                 $sum_c = 46
                 Pause
                 Clear-Host
-            }
-            elseif ($times.last_entry -ge $times.last_combo) {
+            } elseif ($times.last_entry -ge $times.last_combo) {
                 Write-Warning "Es sind noch keine Berechnungen durchgeführt worden. Später erneut versuchen"
                 $option = ""
                 Pause
