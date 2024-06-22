@@ -1,4 +1,4 @@
-"1718648348" | Out-Null
+"1718900478" | Out-Null
 $sum_c = 46
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
 $sqld = Get-Content .\mysql-server.json | ConvertFrom-Json
@@ -54,7 +54,7 @@ function sql_sel($table, $column) {
             return
         }
 
-        $command = New-Object MySql.Data.MySqlClient.MySqlCommand("SELECT $col_string FROM $($sqld.Database).$table ORDER BY DbID;", $script:MyConnection)
+        $command = New-Object MySql.Data.MySqlClient.MySqlCommand("SELECT $col_string FROM $($sqld.Database).$table;", $script:MyConnection)
         $result = $command.ExecuteReader()
         $counter = 1
         while ($result.Read()) {
@@ -442,7 +442,7 @@ While ($True) {
             $com_table = sql_com_sel_lim $sum_c
             $ref_table = sql_sel "refinery" "*"
             $times = sql_sel "timestamps" "*"
-            Clear-Host
+            #Clear-Host
             "Kombinationen"
             "Nur die 10 ersten Einträge werden angezeigt"
             "Werte der Erze sind in SCU angegeben"
@@ -587,13 +587,13 @@ While ($True) {
                 "Z = Zurück zum Hauptmenü"
                 $rs = Read-Host "Wähle die DbID der Kombination, die du verladen möchstest:"
                 if ($rs.ToLower() -ne "z" -and $rs.ToLower() -ne "s") {
-                    if ([int]$rs -is [int] -and [int]$rs -le $com_table.Length -and [int]$rs -gt 0) {
+                    if ([int]$rs -is [int] -and [int]$rs -gt 0) {
                         $loop = $true
                         while ($loop) {
-                            Clear-Host
+                            #Clear-Host
                             "Gewählte Tour:"
                             if ($com_table.Length -gt 1) {
-                                $com_sel = $com_table[$rs - 1]
+                                $com_sel = $com_table | Where-Object {$_.DbID -eq [int]$rs}
                             }
                             else {
                                 $com_sel = $com_table
@@ -696,7 +696,7 @@ While ($True) {
                 }
                 elseif ($rs.ToLower() -eq "z") {
                     $option = ""
-                    Clear-Host
+                    #Clear-Host
                 }
                 elseif ($rs.ToLower() -eq "s") {
                     while ($rs.ToLower() -eq "s") {
