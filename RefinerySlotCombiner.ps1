@@ -1,4 +1,4 @@
-"1719178908" | Out-Null
+"1719049745" | Out-Null
 $sum_c = 46
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
 $sqld = Get-Content .\mysql-server.json | ConvertFrom-Json
@@ -350,10 +350,9 @@ While ($True) {
             ""
             Start-Sleep -Milliseconds 400
             "--------------------------------"
-            "A = Alles löschen"
             "Z = Zurück zum Hauptmenü"
             $rs = Read-Host "Wähle die DbID, welchen du enfernen möchtest:"
-            if ($rs.ToLower() -ne "z" -and $rs.ToLower() -ne "a" -and [int]$rs -is [int]) {
+            if ($rs.ToLower() -ne "z" -and [int]$rs -is [int]) {
                 sql_del "refinery" $rs
                 while ($reset) {
                     $res = Read-Host "Möchtest du noch einen Eintrag entfernen? [J/N]"
@@ -368,18 +367,6 @@ While ($True) {
             } elseif ($rs.ToLower() -eq "z") {
                 sql_upd_t
                 $option = ""
-            } elseif ($rs.ToLower() -eq "a") {
-                "Es werden ALLE Raffinery-Einträge aus der Datenbank entfernt"
-                $rsl = Read-Host "Bist du dir sicher?[J/N]"
-                if ($rsl.ToLower() -eq "j") {
-                    sql_tru "refinery"
-                    sql_tru "combinations"
-                    sql_upd_t
-                    "---------------------"
-                    Start-Sleep -Seconds 2
-                    $option = ""
-                    $reset = $false
-                }
             }
         }
         Clear-Host
