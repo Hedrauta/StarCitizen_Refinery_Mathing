@@ -1,6 +1,6 @@
 {
-  "Server": "",
-  "Port": ,
-  "User": "",
-  "Database": ""
+  "Server": "85.114.134.215",
+  "Port": 4408,
+  "User": "test",
+  "Database": "SC_Ref"
 }
