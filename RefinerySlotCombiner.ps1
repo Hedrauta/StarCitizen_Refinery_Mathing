@@ -1,4 +1,4 @@
-"1719178908" | Out-Null
+"1719653213" | Out-Null
 $sum_c = 46
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
 $sqld = Get-Content .\mysql-server.json | ConvertFrom-Json
@@ -432,7 +432,7 @@ While ($True) {
             $com_table = sql_com_sel_lim $sum_c
             $ref_table = sql_sel "refinery" "*"
             $times = sql_sel "timestamps" "*"
-            #Clear-Host
+            Clear-Host
             "Kombinationen"
             "Nur die 10 ersten Einträge werden angezeigt"
             "Werte der Erze sind in SCU angegeben"
@@ -576,7 +576,7 @@ While ($True) {
                     if ([int]$rs -is [int] -and [int]$rs -gt 0) {
                         $loop = $true
                         while ($loop) {
-                            #Clear-Host
+                            Clear-Host
                             "Gewählte Tour:"
                             if ($com_table.Length -gt 1) {
                                 $com_sel = $com_table | Where-Object { $_.DbID -eq [int]$rs }
@@ -683,7 +683,7 @@ While ($True) {
                     }
                 } elseif ($rs.ToLower() -eq "z") {
                     $option = ""
-                    #Clear-Host
+                    Clear-Host
                 } elseif ($rs.ToLower() -eq "s") {
                     while ($rs.ToLower() -eq "s") {
                         $rs3 = Read-Host "Gebe den neuen Schwellenwert für die Kombinationen an [1-∞]"
