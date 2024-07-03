@@ -241,7 +241,7 @@ function update_prices() {
     
 }
 #Script-Update-Check
-
+script_update
 
 Clear-Host
 # Loop starten
