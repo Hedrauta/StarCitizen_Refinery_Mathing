@@ -1,4 +1,4 @@
-"1719653213" | Out-Null
+"1720024260" | Out-Null
 $sum_c = 46
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
 $sqld = Get-Content .\mysql-server.json | ConvertFrom-Json
