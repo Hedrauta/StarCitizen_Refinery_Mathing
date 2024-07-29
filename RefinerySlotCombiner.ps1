@@ -1,5 +1,6 @@
-"1720024260" | Out-Null
+"1722215092" | Out-Null
 $sum_c = 46
+$undone = $false
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
 $sqld = Get-Content .\mysql-server.json | ConvertFrom-Json
 [string] $PasswordFile = ".\\password.txt"
@@ -87,6 +88,41 @@ function sql_com_sel_lim($summax) {
             return
         }
         $command = New-Object MySql.Data.MySqlClient.MySqlCommand("SELECT * FROM combinations WHERE SCU<=$summax ORDER BY SCU DESC, DbID LIMIT 10;", $script:MyConnection)
+        $result = $command.ExecuteReader()
+        $counter = 1
+        while ($result.Read()) {
+            $row = @{}
+            if ($table -ne "combinations" -and $table -ne "timestamps") {
+                $row["Raf.-Slot"] = $counter
+            }
+            for ($i = 0; $i -lt $result.FieldCount; $i++) {
+                $row[$result.GetName($i)] = $result.GetValue($i)
+            }
+            $counter++
+            $resultArray += $row
+        }
+        $result.Close()
+    } catch {
+        Write-Error "Es ist ein Fehler aufgetreten: $_"
+    } finally {
+        if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
+            $MyConnection.Close()
+        }
+    }
+
+    return $resultArray
+}
+function sql_com_d_sel_lim($summax) {
+    $resultArray = @()
+    try {
+        $script:MyConnection.Open()
+        if ($MyConnection.State -eq [System.Data.ConnectionState]::Open) {
+        } else {
+            Write-Host "Verbindung konnte nicht geöffnet werden."
+            Pause
+            return
+        }
+        $command = New-Object MySql.Data.MySqlClient.MySqlCommand("SELECT * FROM combi_done WHERE SCU<=$summax ORDER BY SCU DESC, DbID LIMIT 10;", $script:MyConnection)
         $result = $command.ExecuteReader()
         $counter = 1
         while ($result.Read()) {
@@ -269,8 +305,10 @@ While ($True) {
             $data | Add-Member -MemberType NoteProperty -Name 'Gold' -Value 0
             $data | Add-Member -MemberType NoteProperty -Name 'Bexalite' -Value 0
             $data | Add-Member -MemberType NoteProperty -Name 'Taranite' -Value 0
-            $data_value = @(0, 0, 0, 0)
-            $data_order = @("Quantanium", "Gold", "Bexalite", "Taranite")
+            $data | Add-Member -MemberType NoteProperty -Name 'DateFin' -Value $(Get-Date)
+            $current_time = $(Get-Date -UFormat %s)
+            $data_value = @(0, 0, 0, 0, $current_time)
+            $data_order = @("Quantanium", "Gold", "Bexalite", "Taranite", "DateFin")
             while ($reset) {
                 Clear-Host
                 "Raffinerie-Slot eintragen"
@@ -280,6 +318,7 @@ While ($True) {
                 "G = Gold"
                 "B = Bexalite"
                 "T = Taranite"
+                "D = Zeit der Fertigstellung ändern"
                 "--------------------------"
                 "E = Eintragen"
                 "L = Liste leeren"
@@ -312,7 +351,41 @@ While ($True) {
                     [int]$rs_value = Read-Host "Wert in cSCU angeben (ohne Buchstaben):"
                     $data.Taranite = $rs_value
                     $data_value[3] = $rs_value
-                } elseif ($rs.ToLower() -eq 'e') {
+                } elseif ($rs.ToLower() -eq 'd') {
+                    $d = $true
+                    while ($d) {
+                        Clear-Host
+                        "Zeit der Fertigstellung ändern."
+                        "D = Dauer in Tagen"
+                        "H = Dauer in Stunden"
+                        "M = Dauer in Minuten"
+                        "-------------------------"
+                        "Aktuelle Fertigstellung"
+                        "$($data.DateFin)"
+                        "-------------------------"
+                        "Z = Zurück zur Liste";""
+                        "-------------------------"
+                        "Wähle die nächste Aktion, und trage danach den Wert ein"
+                        "Dieser Wert kann auch negativ sein"
+                        "(d, gefolgt von -1 = 1 Tag in der Vergangenheit)"
+                        $read_t = Read-Host "Aktion:"
+                        if ($read_t.ToLower() -eq 'd') {
+                            $read_d = Read-Host "Dauer in Tagen:"
+                            $data.DateFin = $data.DateFin.AddDays($read_d)
+                        } elseif ($read_t.ToLower() -eq 'h') {
+                            $read_d = Read-Host "Dauer in Stunden:"
+                            $data.DateFin = $data.DateFin.AddHours($read_d)
+                        } elseif ($read_t.ToLower() -eq 'm') {
+                            $read_d = Read-Host "Dauer in Minuten:"
+                            $data.DateFin = $data.DateFin.AddMinutes($read_d)
+                        } elseif ($read_t.ToLower() -eq 'z') {
+                            $data_value[4] = [int][double]($data.DateFin - [DateTime]::UnixEpoch).TotalSeconds
+                            $d = $false
+                        }
+                    }
+
+                }
+                elseif ($rs.ToLower() -eq 'e') {
                     "Werte eintragen..."; ""
                     sql_ins "refinery" $data_order $data_value
                     ""
@@ -429,7 +502,7 @@ While ($True) {
     } elseif ($option.ToLower() -eq "c") {
         $sum_c = 46
         while ($option.ToLower() -eq "c") {
-            $com_table = sql_com_sel_lim $sum_c
+            $com_table = if($undone) {sql_com_sel_lim $sum_c} else {sql_com_d_sel_lim $sum_c}
             $ref_table = sql_sel "refinery" "*"
             $times = sql_sel "timestamps" "*"
             Clear-Host
@@ -687,11 +760,18 @@ While ($True) {
                 } elseif ($rs.ToLower() -eq "s") {
                     while ($rs.ToLower() -eq "s") {
                         $rs3 = Read-Host "Gebe den neuen Schwellenwert für die Kombinationen an [1-∞]"
+                        $rs4 = Read-Host "Sollen unfertige Slots mit einbezogen werden? [J/N]"
                         if ([int]$rs3 -is [int]) {
                             $sum_c = [int]$rs3
                             $rs = ""
                         } else {
                             "Nur Zahlen eingeben, bitte!"
+                        }
+                        if ($rs4.ToLower() -eq "j") {
+                            $undone = $true
+                        }
+                        else {
+                            $undone = $false
                         }
                     }
                 }
