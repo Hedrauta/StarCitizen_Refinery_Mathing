@@ -1,4 +1,4 @@
-"1722215092" | Out-Null
+"1722357787" | Out-Null
 $sum_c = 46
 $undone = $false
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
@@ -778,8 +778,8 @@ While ($True) {
 
             } elseif ($times.last_combo -ge $times.last_entry) {
                 Write-Warning "Es sind keine Kombinationen möglich, die den Wert $sum_c oder niedriger erzeugen"
-                "Wert wird auf 46 zurückgesetzt"
-                $sum_c = 46
+                "Wert wird auf $($sum_c+25) gesetzt"
+                $sum_c = $sum_c +46
                 Pause
                 Clear-Host
             } elseif ($times.last_entry -ge $times.last_combo) {
