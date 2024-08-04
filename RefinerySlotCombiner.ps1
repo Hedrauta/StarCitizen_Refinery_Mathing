@@ -1,4 +1,4 @@
-"1722357787" | Out-Null
+"1722765935" | Out-Null
 $sum_c = 46
 $undone = $false
 Add-Type -Path 'C:\Program Files (x86)\MySQL\MySQL Connector NET 8.4\MySql.Data.dll'
@@ -325,7 +325,7 @@ While ($True) {
                 "Z = Zurück ins Hauptmenü"
                 "--------------------------"
                 "Aktuelle Liste:"
-                $data | Format-Table
+                $data | Format-Table Quantanium, Gold, Bexalite, Taranite, @{Name="Finished Date";Expression={$_.DateFin.ToString("dd.MM.yyyy HH:mm")}}
                 ""
                 Start-Sleep -Milliseconds 200
                 ""
@@ -356,30 +356,26 @@ While ($True) {
                     while ($d) {
                         Clear-Host
                         "Zeit der Fertigstellung ändern."
-                        "D = Dauer in Tagen"
                         "H = Dauer in Stunden"
                         "M = Dauer in Minuten"
                         "-------------------------"
                         "Aktuelle Fertigstellung"
-                        "$($data.DateFin)"
+                        "$($data.DateFin.ToString("dd.MM.yyyy HH:mm"))"
                         "-------------------------"
                         "Z = Zurück zur Liste";""
                         "-------------------------"
                         "Wähle die nächste Aktion, und trage danach den Wert ein"
                         "Dieser Wert kann auch negativ sein"
-                        "(d, gefolgt von -1 = 1 Tag in der Vergangenheit)"
+                        "(H, gefolgt von -1 = 1 Tag in der Vergangenheit)"
                         $read_t = Read-Host "Aktion:"
-                        if ($read_t.ToLower() -eq 'd') {
-                            $read_d = Read-Host "Dauer in Tagen:"
-                            $data.DateFin = $data.DateFin.AddDays($read_d)
-                        } elseif ($read_t.ToLower() -eq 'h') {
+                        if ($read_t.ToLower() -eq 'h') {
                             $read_d = Read-Host "Dauer in Stunden:"
                             $data.DateFin = $data.DateFin.AddHours($read_d)
                         } elseif ($read_t.ToLower() -eq 'm') {
                             $read_d = Read-Host "Dauer in Minuten:"
                             $data.DateFin = $data.DateFin.AddMinutes($read_d)
                         } elseif ($read_t.ToLower() -eq 'z') {
-                            $data_value[4] = [int][double]($data.DateFin - [DateTime]::UnixEpoch).TotalSeconds
+                            $data_value[4] = [int][double]($data.DateFin.ToUniversalTime() - [DateTime]::UnixEpoch).TotalSeconds
                             $d = $false
                         }
                     }
@@ -482,13 +478,16 @@ While ($True) {
         } elseif ($ref_table.Length -eq 1) {
             $ref_table['wmi'] = [Int][Math]::Floor(($math_table.Quantanium * $price_quan.Minimum) + ($math_table.Gold * $price_gold.Minimum) + ($math_table.Bexalite * $price_bexa.Minimum) + ($math_table.Taranite * $price_tara.Minimum))
             $ref_table['Wert_min'] = "{0:N0}" -f $ref_table.wmi
-            $sum_min += $ref_table.wmi
+            $sum_min = $ref_table.wmi
             $ref_table['wma'] = [Int][Math]::Floor(($math_table.Quantanium * $price_quan.Maximum) + ($math_table.Gold * $price_gold.Maximum) + ($math_table.Bexalite * $price_bexa.Maximum) + ($math_table.Taranite * $price_tara.Maximum))
             $ref_table['Wert_max'] = "{0:N0}" -f $ref_table.wma
-            $sum_min += $ref_table.wma
+            $sum_max = $ref_table.wma
         }
 
-        $ref_view = $ref_table | ConvertFrom-HashTable | Select-Object -Property Raf.-Slot, Quantanium, Gold, Bexalite, Taranite, Wert_min, Wert_max | Format-Table
+        $ref_view = $ref_table | 
+            ConvertFrom-HashTable | 
+            Select-Object -Property Raf.-Slot, Quantanium, Gold, Bexalite, Taranite, Wert_min, Wert_max, DateFin | 
+            Format-Table Raf.-Slot, Quantanium, Gold, Bexalite, Taranite, Wert_min, Wert_max, @{Name="Datum Ende"; Expression={[DateTime]::UnixEpoch.AddSeconds($_.DateFin)}}
         $ref_view
         Start-Sleep -Milliseconds 400
         "-------------------------"
